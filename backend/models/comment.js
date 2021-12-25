@@ -25,7 +25,8 @@ class Comment {
               comment,
               is_relocate AS "isRelocate"
       FROM comments
-      ORDER BY create_date`
+      ORDER BY create_date DESC
+      LIMIT 5`
     );
 
     return result.rows;
@@ -42,6 +43,16 @@ class Comment {
     const entry = result.rows[0];
 
     if (!entry) throw new NotFoundError(`Comment does not exist: ${id}`);
+  }
+
+  static async findAllIsRelocate() {
+    const result = await db.query(
+      `SELECT 
+          is_relocate AS "isRelocate"
+      FROM comments`
+    );
+
+    return result.rows;
   }
 }
 
