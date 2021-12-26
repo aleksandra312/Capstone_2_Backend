@@ -12,6 +12,11 @@
       "type": "string",
       "format": "date"
     },
+    "usState": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 100
+    },
     "comment": {
       "type": "string",
       "minLength": 10,

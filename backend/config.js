@@ -12,8 +12,11 @@ function getDatabaseUri() {
     : process.env.DATABASE_URL || "states_trends";
 }
 
+const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
+
 module.exports = {
   SECRET_KEY,
   PORT,
   getDatabaseUri,
+  BCRYPT_WORK_FACTOR,
 };

@@ -9,6 +9,7 @@ const { BadRequestError } = require("../expressError");
 const Comment = require("../models/comment");
 
 const commentNewSchema = require("../schemas/commentNew.json");
+const commentSearchSchema = require("../schemas/commentSearchSchema.json");
 
 const router = new express.Router();
 
@@ -34,9 +35,43 @@ router.post("/", async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
+  const q = req.query;
   try {
-    const comments = await Comment.findAll();
+    const validator = jsonschema.validate(q, commentSearchSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
+    }
+    const comments = await Comment.findAll(q);
     return res.json({ comments });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /trend => { trendy: true }
+ * returns trend based on the isRelocate values.
+ */
+
+router.get("/trend", async function (req, res, next) {
+  const q = req.query;
+
+  try {
+    const validator = jsonschema.validate(q, commentSearchSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    const relocate = await Comment.findAllIsRelocate(q);
+
+    const arr = relocate.map((r) => r.isRelocate);
+    const trueCount = arr.filter(Boolean).length;
+    const falseCount = arr.length - trueCount;
+
+    const trendy = trueCount > falseCount ? true : false;
+
+    return res.json({ trendy });
   } catch (err) {
     return next(err);
   }
@@ -50,26 +85,6 @@ router.delete("/:id", async function (req, res, next) {
   try {
     await Comment.remove(req.params.id);
     return res.json({ deleted: req.params.id });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-/** GET /trend => { trendy: true }
- * returns trend based on the isRelocate values.
- */
-
-router.get("/trend", async function (req, res, next) {
-  try {
-    const relocate = await Comment.findAllIsRelocate();
-
-    const arr = relocate.map((r) => r.isRelocate);
-    const trueCount = arr.filter(Boolean).length;
-    const falseCount = arr.length - trueCount;
-
-    const trendy = trueCount >= falseCount ? true : false;
-
-    return res.json({ trendy });
   } catch (err) {
     return next(err);
   }
