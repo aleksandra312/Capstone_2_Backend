@@ -57,6 +57,7 @@ class Comment {
 
   static async findAllIsRelocate(searchFilters = {}) {
     let query = `SELECT 
+                    us_state AS "usState",
                     is_relocate AS "isRelocate"
                   FROM comments`;
 
@@ -66,8 +67,8 @@ class Comment {
     const { usState, username } = searchFilters;
 
     if (usState) {
-      queryValues.push(`${usState}`);
-      whereExpressions.push(`us_state = $${queryValues.length}`);
+      queryValues.push(`%${usState}%`);
+      whereExpressions.push(`us_state ILIKE $${queryValues.length}`);
     }
 
     if (username) {
