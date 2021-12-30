@@ -57,14 +57,16 @@ class Comment {
 
   static async findAllIsRelocate(searchFilters = {}) {
     let query = `SELECT 
-                    us_state AS "usState",
-                    is_relocate AS "isRelocate"
+                    EXTRACT(year FROM create_date) AS year,
+                    us_state,
+                    COUNT(NULLIF(is_relocate, false)) AS relocate_true,
+                    COUNT(NULLIF(is_relocate, true)) AS relocate_false
                   FROM comments`;
 
     let whereExpressions = [];
     let queryValues = [];
 
-    const { usState, username } = searchFilters;
+    const { usState, username, fromDate, toDate } = searchFilters;
 
     if (usState) {
       queryValues.push(`%${usState}%`);
@@ -76,9 +78,21 @@ class Comment {
       whereExpressions.push(`username = $${queryValues.length}`);
     }
 
+    if (fromDate) {
+      queryValues.push(`${fromDate}`);
+      whereExpressions.push(`create_date >= $${queryValues.length}`);
+    }
+
+    if (toDate) {
+      queryValues.push(`${toDate}`);
+      whereExpressions.push(`create_date <= $${queryValues.length}`);
+    }
+
     if (whereExpressions.length > 0) {
       query += " WHERE " + whereExpressions.join(" AND ");
     }
+
+    query += " GROUP BY year, us_state";
 
     const result = await db.query(query, queryValues);
 

@@ -49,8 +49,9 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/** GET /trend => { trendy: true }
- * returns trend based on the isRelocate values.
+/** GET /trend => { year, us_state, relocate_true, relocate_false }
+ *  * accepts optional params: usState, username, from date, to date
+ * returns survey results grouped by year and state
  */
 
 router.get("/trend", async function (req, res, next) {
@@ -62,16 +63,9 @@ router.get("/trend", async function (req, res, next) {
       const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
+    const survey = await Comment.findAllIsRelocate(q);
 
-    const relocate = await Comment.findAllIsRelocate(q);
-
-    const arr = relocate.map((r) => r.isRelocate);
-    const trueCount = arr.filter(Boolean).length;
-    const falseCount = arr.length - trueCount;
-
-    const trendy = trueCount > falseCount ? true : false;
-
-    return res.json({ trendy });
+    return res.json({ survey });
   } catch (err) {
     return next(err);
   }
