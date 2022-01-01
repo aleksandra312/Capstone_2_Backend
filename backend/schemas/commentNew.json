@@ -14,7 +14,7 @@
     },
     "usState": {
       "type": "string",
-      "minLength": 5,
+      "minLength": 1,
       "maxLength": 100
     },
     "comment": {
