@@ -47,9 +47,6 @@ class Comment {
 
     query += " ORDER BY create_date DESC LIMIT 5";
 
-    console.log(query);
-    console.log(queryValues);
-
     const result = await db.query(query, queryValues);
 
     return result.rows;
@@ -92,7 +89,7 @@ class Comment {
       query += " WHERE " + whereExpressions.join(" AND ");
     }
 
-    query += " GROUP BY year, us_state";
+    query += " GROUP BY year, us_state ORDER BY relocate_true DESC";
 
     const result = await db.query(query, queryValues);
 
