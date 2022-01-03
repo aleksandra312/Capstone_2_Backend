@@ -14,6 +14,9 @@
     },
     "toDate": {
       "type": "string"
+    },
+    "orderBy": {
+      "type": "string"
     }
   },
   "additionalProperties": false,

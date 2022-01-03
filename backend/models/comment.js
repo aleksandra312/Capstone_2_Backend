@@ -63,7 +63,7 @@ class Comment {
     let whereExpressions = [];
     let queryValues = [];
 
-    const { usState, username, fromDate, toDate } = searchFilters;
+    const { usState, username, fromDate, toDate, orderBy } = searchFilters;
 
     if (usState) {
       queryValues.push(`%${usState}%`);
@@ -89,7 +89,11 @@ class Comment {
       query += " WHERE " + whereExpressions.join(" AND ");
     }
 
-    query += " GROUP BY year, us_state ORDER BY relocate_true DESC";
+    query += " GROUP BY year, us_state";
+
+    if (orderBy) {
+      query += ` ORDER BY ${orderBy} DESC`;
+    }
 
     const result = await db.query(query, queryValues);
 
